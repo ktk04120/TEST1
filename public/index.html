@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>가설전기 안전점검 자료 제출</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: 'Inter', -apple-system, sans-serif;
+    background: #F4F1EA; color: #1C1F22; min-height: 100vh;
+  }
+  h1, h2, h3 { font-family: 'Oswald', sans-serif; letter-spacing: 0.01em; margin: 0; }
+
+  .hazard-strip { height: 6px; background: repeating-linear-gradient(135deg, #FFC107 0 14px, #1C1F22 14px 28px); }
+  header { background: #1C1F22; color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+  header .brand { font-size: 18px; font-weight: 700; }
+  header .role-tag { font-size: 12px; color: #FFC107; font-weight: 600; letter-spacing: 0.05em; }
+  header button { background: #2A2F35; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-size: 13px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  .card { background: #fff; border: 1px solid #E1DCCF; border-radius: 10px; padding: 22px; margin-bottom: 16px; }
+  .field { margin-bottom: 14px; }
+  label { display: block; font-size: 12.5px; font-weight: 600; color: #6B7178; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  input[type="text"], input[type="email"], input[type="password"], input[type="date"] {
+    width: 100%; padding: 11px 12px; border: 1.5px solid #E1DCCF; border-radius: 7px; font-size: 15px; font-family: 'Inter', sans-serif;
+  }
+  input:focus { outline: none; border-color: #E8590C; }
+
+  .btn-primary {
+    width: 100%; padding: 14px; background: #E8590C; color: #fff; border: none; border-radius: 8px;
+    font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 0.02em;
+  }
+  .btn-primary:disabled { background: #C9C4B8; cursor: not-allowed; }
+
+  .file-drop {
+    border: 2px dashed #C9C4B8; border-radius: 8px; padding: 26px 14px; text-align: center; color: #6B7178;
+    font-size: 13.5px; cursor: pointer; margin-bottom: 6px;
+  }
+  .file-list { font-size: 13px; color: #1C1F22; margin-top: 8px; }
+  .file-list div { padding: 4px 0; }
+
+  .msg { font-size: 13.5px; padding: 10px 12px; border-radius: 7px; margin-bottom: 14px; }
+  .msg.error { background: #FFF0F0; color: #E03131; }
+  .msg.success { background: #EBFBEE; color: #2F9E44; }
+
+  .login-wrap { max-width: 380px; margin: 60px auto; padding: 0 16px; }
+  .login-title { text-align: center; margin-bottom: 22px; }
+  .login-title h1 { font-size: 20px; }
+  .login-title p { font-size: 13px; color: #6B7178; margin-top: 6px; }
+
+  .sub-item { background: #fff; border: 1px solid #E1DCCF; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; }
+  .sub-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .sub-site { font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600; }
+  .sub-meta { font-size: 12.5px; color: #6B7178; margin-top: 3px; }
+  .sub-files a { display: inline-block; margin: 6px 6px 0 0; font-size: 12.5px; color: #E8590C; text-decoration: none; border: 1px solid #E8590C; border-radius: 6px; padding: 4px 9px; }
+
+  .filters { display: flex; gap: 8px; margin-bottom: 14px; }
+  select { flex: 1; padding: 9px 10px; border-radius: 7px; border: 1.5px solid #E1DCCF; font-size: 13.5px; }
+  .refresh-btn { padding: 9px 14px; border-radius: 7px; border: 1.5px solid #1C1F22; background: #1C1F22; color: #fff; font-size: 13px; cursor: pointer; }
+
+  .empty { text-align: center; padding: 50px 20px; color: #6B7178; font-size: 14px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-wrap">
+  <div class="login-title">
+    <h1>가설전기 안전점검 자료 제출</h1>
+    <p>현장 계정 또는 관리자 계정으로 로그인하세요</p>
+  </div>
+  <div class="card">
+    <div id="login-msg"></div>
+    <div class="field">
+      <label>아이디 (이메일)</label>
+      <input type="email" id="login-email" placeholder="예: site@company.com" />
+    </div>
+    <div class="field">
+      <label>비밀번호</label>
+      <input type="password" id="login-password" placeholder="비밀번호" />
+    </div>
+    <button class="btn-primary" id="login-btn">로그인</button>
+  </div>
+</div>
+
+<div id="app-screen" class="hidden">
+  <div class="hazard-strip"></div>
+  <header>
+    <div>
+      <div class="brand">가설전기 안전점검 자료</div>
+      <div class="role-tag" id="role-tag"></div>
+    </div>
+    <button id="logout-btn">로그아웃</button>
+  </header>
+  <main id="main-content"></main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

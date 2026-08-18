@@ -1,8 +1,10 @@
 // ===== Firebase 초기화 =====
+// [임시 테스트 모드] Storage(파일 저장소)는 아직 연결하지 않았습니다.
+// 로그인 / 역할 구분 / 관리자 조회 흐름만 먼저 확인하는 용도로,
+// 실제 파일은 저장하지 않고 파일 "이름"만 기록합니다.
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-const storage = firebase.storage();
 
 // ===== 화면 요소 =====
 const loginScreen = document.getElementById('login-screen');
@@ -120,32 +122,27 @@ async function submitChecklist() {
   if (selectedFiles.length === 0) { msgBox.innerHTML = '<div class="msg error">파일을 최소 1개 선택해주세요</div>'; return; }
 
   btn.disabled = true;
-  btn.textContent = '업로드 중...';
+  btn.textContent = '제출 중...';
   msgBox.innerHTML = '';
 
   try {
-    const fileURLs = [];
-    for (const file of selectedFiles) {
-      const path = 'submissions/' + currentUser.uid + '/' + Date.now() + '_' + file.name;
-      const ref = storage.ref().child(path);
-      await ref.put(file);
-      const url = await ref.getDownloadURL();
-      fileURLs.push({ name: file.name, url });
-    }
+    // [임시 테스트 모드] 실제 파일은 저장하지 않고 파일 이름만 기록합니다.
+    // 나중에 Storage를 연결하면 이 부분에서 실제 업로드 후 URL을 받아오도록 바꾸면 됩니다.
+    const fileNames = selectedFiles.map(f => ({ name: f.name, url: null }));
 
     await db.collection('submissions').add({
       site,
       date,
-      files: fileURLs,
+      files: fileNames,
       uploaderEmail: currentUser.email,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
-    msgBox.innerHTML = '<div class="msg success">제출이 완료되었습니다</div>';
+    msgBox.innerHTML = '<div class="msg success">제출이 완료되었습니다 (테스트 모드: 파일 이름만 기록됨)</div>';
     renderUploadView();
   } catch (e) {
     console.error(e);
-    msgBox.innerHTML = '<div class="msg error">업로드 중 오류가 발생했습니다. 다시 시도해주세요</div>';
+    msgBox.innerHTML = '<div class="msg error">제출 중 오류가 발생했습니다. 다시 시도해주세요</div>';
     btn.disabled = false;
     btn.textContent = '제출';
   }
@@ -210,7 +207,10 @@ function renderAdminList() {
         </div>
       </div>
       <div class="sub-files">
-        ${(s.files || []).map(f => '<a href="' + f.url + '" target="_blank" rel="noopener">📎 ' + escapeHtml(f.name) + '</a>').join('')}
+        ${(s.files || []).map(f => f.url
+          ? '<a href="' + f.url + '" target="_blank" rel="noopener">📎 ' + escapeHtml(f.name) + '</a>'
+          : '<span style="display:inline-block;margin:6px 6px 0 0;font-size:12.5px;color:#6B7178;border:1px solid #E1DCCF;border-radius:6px;padding:4px 9px;">📎 ' + escapeHtml(f.name) + ' (테스트 모드: 파일 미저장)</span>'
+        ).join('')}
       </div>
     </div>
   `).join('');
